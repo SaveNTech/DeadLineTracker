@@ -59,6 +59,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
+                    textCapitalization: TextCapitalization.none,
                     decoration: const InputDecoration(labelText: 'Email'),
                     validator: (v) =>
                         (v == null || !v.contains('@')) ? 'Введите корректный email' : null,
@@ -66,6 +67,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   const SizedBox(height: 12),
                   TextFormField(
                     controller: _usernameController,
+                    textCapitalization: TextCapitalization.words,
                     decoration: const InputDecoration(labelText: 'Имя пользователя'),
                     validator: (v) =>
                         (v == null || v.length < 3) ? 'Минимум 3 символа' : null,
@@ -74,6 +76,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   TextFormField(
                     controller: _passwordController,
                     obscureText: true,
+                    textCapitalization: TextCapitalization.none,
                     decoration: const InputDecoration(labelText: 'Пароль'),
                     validator: (v) =>
                         (v == null || v.length < 8) ? 'Минимум 8 символов' : null,

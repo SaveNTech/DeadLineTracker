@@ -63,7 +63,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ).animate().fadeIn(delay: 100.ms),
                   const SizedBox(height: 4),
                   Text(
-                    'Ежедневные привычки и дедлайны в одном месте',
+                    'Управляй своими задачами и финансами',
                     textAlign: TextAlign.center,
                     style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.outline),
                   ).animate().fadeIn(delay: 150.ms),
@@ -71,6 +71,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
+                    textCapitalization: TextCapitalization.none,
                     decoration: const InputDecoration(labelText: 'Email'),
                     validator: (v) =>
                         (v == null || !v.contains('@')) ? 'Введите корректный email' : null,
@@ -79,6 +80,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   TextFormField(
                     controller: _passwordController,
                     obscureText: true,
+                    textCapitalization: TextCapitalization.none,
                     decoration: const InputDecoration(labelText: 'Пароль'),
                     validator: (v) =>
                         (v == null || v.length < 8) ? 'Минимум 8 символов' : null,

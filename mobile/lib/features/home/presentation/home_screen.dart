@@ -159,7 +159,7 @@ class _TodayRing extends StatelessWidget {
                 alignment: Alignment.center,
                 children: [
                   CircularProgressIndicator(
-                    value: progress == 0 ? null : progress,
+                    value: progress,
                     strokeWidth: 6,
                     backgroundColor: theme.colorScheme.surfaceContainerHighest,
                     valueColor: AlwaysStoppedAnimation(AppColors.primary),

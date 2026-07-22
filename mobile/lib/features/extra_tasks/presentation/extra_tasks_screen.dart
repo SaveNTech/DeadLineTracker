@@ -97,11 +97,13 @@ class ExtraTasksScreen extends ConsumerWidget {
                 TextField(
                   controller: titleController,
                   autofocus: true,
+                  textCapitalization: TextCapitalization.sentences,
                   decoration: const InputDecoration(labelText: 'Название'),
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: descController,
+                  textCapitalization: TextCapitalization.sentences,
                   decoration: const InputDecoration(labelText: 'Описание (необязательно)'),
                 ),
                 const SizedBox(height: 12),

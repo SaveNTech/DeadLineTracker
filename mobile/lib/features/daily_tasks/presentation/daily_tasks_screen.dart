@@ -107,16 +107,18 @@ class DailyTasksScreen extends ConsumerWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text('Новая привычка', style: Theme.of(sheetContext).textTheme.titleLarge),
+                Text('Новая ежедневная задача', style: Theme.of(sheetContext).textTheme.titleLarge),
                 const SizedBox(height: 16),
                 TextField(
                   controller: titleController,
                   autofocus: true,
+                  textCapitalization: TextCapitalization.sentences,
                   decoration: const InputDecoration(labelText: 'Название'),
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: descController,
+                  textCapitalization: TextCapitalization.sentences,
                   decoration: const InputDecoration(labelText: 'Описание (необязательно)'),
                 ),
                 const SizedBox(height: 12),

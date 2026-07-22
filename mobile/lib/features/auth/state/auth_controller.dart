@@ -96,9 +96,16 @@ class AuthController extends StateNotifier<AuthState> {
   }
 
   void forceSignOut() {
-    state = const AuthState(
+    // Only show "session expired" when a *real* active session just broke.
+    // If this fires while we're still silently restoring on app launch
+    // (e.g. a leftover token from a previous install/session that the
+    // backend no longer recognizes), the user never consciously logged in
+    // on this device/session — showing "expired" is just confusing there,
+    // so fall back to a plain unauthenticated state instead.
+    final wasActivelyAuthenticated = state.status == AuthStatus.authenticated;
+    state = AuthState(
       status: AuthStatus.unauthenticated,
-      errorMessage: 'Сессия истекла, войдите снова',
+      errorMessage: wasActivelyAuthenticated ? 'Сессия истекла, войдите снова' : null,
     );
   }
 

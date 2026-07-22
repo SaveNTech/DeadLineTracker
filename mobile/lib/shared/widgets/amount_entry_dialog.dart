@@ -72,16 +72,17 @@ class _AmountEntryDialogState extends ConsumerState<_AmountEntryDialog> {
             error: (_, __) => const SizedBox.shrink(),
             data: (goals) {
               if (goals.isEmpty) return const SizedBox.shrink();
-              return DropdownButtonFormField<String?>(
-                value: _selectedGoalId,
-                decoration: const InputDecoration(labelText: 'Отнести к цели (необязательно)'),
-                items: [
-                  const DropdownMenuItem<String?>(value: null, child: Text('Без цели')),
+              return DropdownMenu<String?>(
+                expandedInsets: EdgeInsets.zero,
+                label: const Text('Отнести к цели (необязательно)'),
+                initialSelection: _selectedGoalId,
+                dropdownMenuEntries: [
+                  const DropdownMenuEntry<String?>(value: null, label: 'Без цели'),
                   ...goals.map(
-                    (g) => DropdownMenuItem<String?>(value: g.id, child: Text(g.title)),
+                    (g) => DropdownMenuEntry<String?>(value: g.id, label: g.title),
                   ),
                 ],
-                onChanged: (value) => setState(() => _selectedGoalId = value),
+                onSelected: (value) => setState(() => _selectedGoalId = value),
               );
             },
           ),

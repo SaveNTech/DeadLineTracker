@@ -174,7 +174,8 @@ class FinanceScreen extends ConsumerWidget {
             TextField(
               controller: titleController,
               autofocus: true,
-              decoration: const InputDecoration(labelText: 'Название (например, «Кредит»)'),
+              textCapitalization: TextCapitalization.sentences,
+              decoration: const InputDecoration(labelText: 'Название (например, «Мечта на колёсах»)'),
             ),
             const SizedBox(height: 12),
             TextField(
