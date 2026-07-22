@@ -16,6 +16,9 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    networks:
+      default:
+        ipv4_address: 172.28.0.10
 
   backend:
     build:
@@ -29,6 +32,11 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/app
+    # Some sandboxed/nested-Docker hosts break the embedded DNS resolver
+    # (127.0.0.11), so service names like "db" don't resolve. extra_hosts
+    # pins it via /etc/hosts instead, independent of DNS.
+    extra_hosts:
+      - "db:172.28.0.10"
     depends_on:
       db:
         condition: service_healthy
@@ -39,8 +47,16 @@ services:
     restart: unless-stopped
     ports:
       - "8080:8080"
+    extra_hosts:
+      - "db:172.28.0.10"
     depends_on:
       - db
+
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
 
 volumes:
   postgres_data:
