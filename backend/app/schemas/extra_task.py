@@ -8,12 +8,14 @@ class ExtraTaskCreate(BaseModel):
     title: str = Field(min_length=1, max_length=200)
     description: str | None = None
     deadline: datetime | None = None
+    priority: int = Field(default=1, ge=1, le=3)
 
 
 class ExtraTaskUpdate(BaseModel):
     title: str | None = Field(default=None, min_length=1, max_length=200)
     description: str | None = None
     deadline: datetime | None = None
+    priority: int | None = Field(default=None, ge=1, le=3)
     position: int | None = None
 
 
@@ -24,6 +26,7 @@ class ExtraTaskRead(BaseModel):
     title: str
     description: str | None
     deadline: datetime | None
+    priority: int
     is_completed: bool
     completed_at: datetime | None
     position: int

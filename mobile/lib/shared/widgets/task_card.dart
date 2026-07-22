@@ -14,6 +14,7 @@ class TaskCard extends StatelessWidget {
     required this.onDelete,
     this.subtitle,
     this.index = 0,
+    this.priorityColor,
   });
 
   final String title;
@@ -23,6 +24,11 @@ class TaskCard extends StatelessWidget {
   final VoidCallback onToggle;
   final VoidCallback onDelete;
   final int index;
+
+  /// Small left-edge stripe marking importance (extra tasks only). Kept
+  /// separate from the overdue treatment below so the two never get
+  /// visually confused with each other.
+  final Color? priorityColor;
 
   @override
   Widget build(BuildContext context) {
@@ -43,45 +49,64 @@ class TaskCard extends StatelessWidget {
         child: const Icon(Icons.delete_outline, color: Colors.white),
       ),
       child: Card(
+        clipBehavior: Clip.antiAlias,
         child: InkWell(
-          borderRadius: BorderRadius.circular(20),
           onTap: onToggle,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: IntrinsicHeight(
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                AnimatedCheck(isCompleted: isCompleted, onTap: onToggle, accentColor: accent),
-                const SizedBox(width: 14),
+                if (priorityColor != null && !isCompleted)
+                  Container(width: 4, color: priorityColor),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        title,
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          decoration: isCompleted ? TextDecoration.lineThrough : null,
-                          color: isCompleted
-                              ? theme.colorScheme.outline
-                              : theme.colorScheme.onSurface,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    child: Row(
+                      children: [
+                        AnimatedCheck(
+                          isCompleted: isCompleted,
+                          onTap: onToggle,
+                          accentColor: accent,
                         ),
-                      ),
-                      if (subtitle != null) ...[
-                        const SizedBox(height: 3),
-                        Text(
-                          subtitle!,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: accent ?? theme.colorScheme.outline,
-                            fontWeight: accent != null ? FontWeight.w600 : FontWeight.w400,
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                title,
+                                style: theme.textTheme.bodyLarge?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  decoration: isCompleted ? TextDecoration.lineThrough : null,
+                                  color: isCompleted
+                                      ? theme.colorScheme.outline
+                                      : theme.colorScheme.onSurface,
+                                ),
+                              ),
+                              if (subtitle != null) ...[
+                                const SizedBox(height: 3),
+                                Text(
+                                  subtitle!,
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: accent ?? theme.colorScheme.outline,
+                                    fontWeight: accent != null ? FontWeight.w600 : FontWeight.w400,
+                                  ),
+                                ),
+                              ],
+                            ],
                           ),
                         ),
+                        if (isOverdue && !isCompleted)
+                          const Icon(
+                            Icons.local_fire_department_rounded,
+                            color: AppColors.overdue,
+                            size: 20,
+                          ),
                       ],
-                    ],
+                    ),
                   ),
                 ),
-                if (isOverdue && !isCompleted)
-                  const Icon(Icons.local_fire_department_rounded, color: AppColors.overdue, size: 20),
               ],
             ),
           ),

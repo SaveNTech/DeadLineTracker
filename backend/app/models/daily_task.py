@@ -34,6 +34,8 @@ class DailyTaskTemplate(Base, TimestampMixin):
     due_time: Mapped[time | None] = mapped_column(Time, nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     position: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    # When true, completing an instance requires an income amount (see IncomeEntry).
+    is_financial: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
 
 class DailyTaskInstance(Base, TimestampMixin):

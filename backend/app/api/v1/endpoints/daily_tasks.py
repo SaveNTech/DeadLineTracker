@@ -8,6 +8,7 @@ from app.core.deps import get_current_user
 from app.db.session import get_db
 from app.models.user import User
 from app.schemas.daily_task import (
+    DailyTaskCompleteRequest,
     DailyTaskInstanceRead,
     DailyTaskTemplateCreate,
     DailyTaskTemplateRead,
@@ -79,10 +80,14 @@ async def _read_instance(
 @router.patch("/{instance_id}/complete", response_model=DailyTaskInstanceRead)
 async def complete_instance(
     instance_id: uuid.UUID,
+    data: DailyTaskCompleteRequest | None = None,
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ) -> DailyTaskInstanceRead:
-    instance = await task_service.set_daily_instance_completed(db, user, instance_id, True)
+    body = data or DailyTaskCompleteRequest()
+    instance = await task_service.complete_daily_instance(
+        db, user, instance_id, body.amount, body.goal_id
+    )
     return await _read_instance(db, user, instance_id, instance.date)
 
 
@@ -92,5 +97,5 @@ async def uncomplete_instance(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ) -> DailyTaskInstanceRead:
-    instance = await task_service.set_daily_instance_completed(db, user, instance_id, False)
+    instance = await task_service.uncomplete_daily_instance(db, user, instance_id)
     return await _read_instance(db, user, instance_id, instance.date)

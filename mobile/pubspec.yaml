@@ -59,6 +59,9 @@ dependencies:
   # Typography
   google_fonts: ^6.2.1
 
+  # Sharing/exporting files (CSV export)
+  share_plus: ^10.0.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

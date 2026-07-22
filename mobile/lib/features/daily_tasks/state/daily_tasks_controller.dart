@@ -8,8 +8,13 @@ final dailyTasksRepositoryProvider = Provider<DailyTasksRepository>((ref) {
   return DailyTasksRepository(ref.watch(apiClientProvider));
 });
 
-final dailyTasksControllerProvider =
-    StateNotifierProvider<DailyTasksController, AsyncValue<List<DailyTaskInstance>>>((ref) {
+/// Used by the Statistics tab to list habits for per-task history drill-down.
+final dailyTemplatesProvider = FutureProvider.autoDispose<List<DailyTaskTemplate>>((ref) {
+  return ref.watch(dailyTasksRepositoryProvider).fetchTemplates();
+});
+
+final dailyTasksControllerProvider = StateNotifierProvider.autoDispose<
+    DailyTasksController, AsyncValue<List<DailyTaskInstance>>>((ref) {
   return DailyTasksController(ref.watch(dailyTasksRepositoryProvider));
 });
 
@@ -25,8 +30,18 @@ class DailyTasksController extends StateNotifier<AsyncValue<List<DailyTaskInstan
     state = await AsyncValue.guard(() => _repository.fetchToday());
   }
 
-  Future<void> addTemplate({required String title, String? description, String? dueTime}) async {
-    await _repository.createTemplate(title: title, description: description, dueTime: dueTime);
+  Future<void> addTemplate({
+    required String title,
+    String? description,
+    String? dueTime,
+    bool isFinancial = false,
+  }) async {
+    await _repository.createTemplate(
+      title: title,
+      description: description,
+      dueTime: dueTime,
+      isFinancial: isFinancial,
+    );
     await refresh();
   }
 
@@ -42,16 +57,25 @@ class DailyTasksController extends StateNotifier<AsyncValue<List<DailyTaskInstan
     }
   }
 
-  Future<void> toggle(DailyTaskInstance instance) async {
-    final target = !instance.isCompleted;
-    // optimistic update so the checkmark and re-sort feel instant
+  /// Completes a non-financial task, or a financial one once the caller has
+  /// already collected [amount] (see DailyTasksScreen's completion flow).
+  Future<void> complete(DailyTaskInstance instance, {double? amount, String? goalId}) async {
     state = state.whenData(
-      (items) => items
-          .map((i) => i.id == instance.id ? _withCompleted(i, target) : i)
-          .toList(),
+      (items) => items.map((i) => i.id == instance.id ? _withCompleted(i, true) : i).toList(),
     );
     try {
-      await _repository.setCompleted(instance.id, target);
+      await _repository.complete(instance.id, amount: amount, goalId: goalId);
+    } finally {
+      await refresh();
+    }
+  }
+
+  Future<void> uncomplete(DailyTaskInstance instance) async {
+    state = state.whenData(
+      (items) => items.map((i) => i.id == instance.id ? _withCompleted(i, false) : i).toList(),
+    );
+    try {
+      await _repository.uncomplete(instance.id);
     } finally {
       await refresh();
     }
@@ -64,6 +88,7 @@ class DailyTasksController extends StateNotifier<AsyncValue<List<DailyTaskInstan
         description: i.description,
         date: i.date,
         dueTime: i.dueTime,
+        isFinancial: i.isFinancial,
         isCompleted: completed,
         completedAt: completed ? DateTime.now() : null,
         isOverdue: completed ? false : i.isOverdue,

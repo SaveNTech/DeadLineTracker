@@ -5,9 +5,10 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/register_screen.dart';
 import '../../features/auth/state/auth_controller.dart';
-import '../../features/daily_tasks/presentation/daily_tasks_screen.dart';
-import '../../features/extra_tasks/presentation/extra_tasks_screen.dart';
+import '../../features/finance/presentation/finance_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
+import '../../features/statistics/presentation/statistics_screen.dart';
+import '../../features/tasks/presentation/tasks_screen.dart';
 import '../../shared/widgets/app_shell.dart';
 
 class _AuthRefreshNotifier extends ChangeNotifier {
@@ -41,8 +42,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state, child) => AppShell(child: child),
         routes: [
           GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
-          GoRoute(path: '/daily', builder: (context, state) => const DailyTasksScreen()),
-          GoRoute(path: '/extra', builder: (context, state) => const ExtraTasksScreen()),
+          GoRoute(path: '/tasks', builder: (context, state) => const TasksScreen()),
+          GoRoute(path: '/statistics', builder: (context, state) => const StatisticsScreen()),
+          GoRoute(path: '/finance', builder: (context, state) => const FinanceScreen()),
         ],
       ),
     ],

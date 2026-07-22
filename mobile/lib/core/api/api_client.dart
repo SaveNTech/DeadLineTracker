@@ -1,6 +1,5 @@
-import 'dart:io';
-
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../models/auth_tokens.dart';
 import '../storage/token_storage.dart';
@@ -9,9 +8,12 @@ import '../storage/token_storage.dart';
 ///
 /// `10.0.2.2` is how the Android emulator reaches the host machine's
 /// `localhost`. Point this at a real host (and use https) for a physical
-/// device or production build.
+/// device, web, or production build. Uses `defaultTargetPlatform` (not
+/// `dart:io`'s `Platform`) so this also compiles for web.
 String get _defaultBaseUrl {
-  if (Platform.isAndroid) return 'http://10.0.2.2:8000/api/v1';
+  if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+    return 'http://10.0.2.2:8000/api/v1';
+  }
   return 'http://localhost:8000/api/v1';
 }
 

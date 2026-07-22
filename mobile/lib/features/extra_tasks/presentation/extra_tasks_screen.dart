@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/task_card.dart';
 import '../state/extra_tasks_controller.dart';
 
 final _deadlineFormat = DateFormat('d MMM, HH:mm', 'ru');
+
+const _priorityLabels = {1: 'Низкая', 2: 'Средняя', 3: 'Высокая'};
 
 class ExtraTasksScreen extends ConsumerWidget {
   const ExtraTasksScreen({super.key});
@@ -16,8 +19,8 @@ class ExtraTasksScreen extends ConsumerWidget {
     final tasksAsync = ref.watch(extraTasksControllerProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Дополнительные')),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'extra_tasks_fab',
         onPressed: () => _showAddSheet(context, ref),
         child: const Icon(Icons.add),
       ),
@@ -52,6 +55,7 @@ class ExtraTasksScreen extends ConsumerWidget {
                   subtitle: task.deadline != null ? _deadlineFormat.format(task.deadline!.toLocal()) : null,
                   isCompleted: task.isCompleted,
                   isOverdue: task.isOverdue,
+                  priorityColor: AppColors.priorityColor(task.priority),
                   onToggle: () => ref.read(extraTasksControllerProvider.notifier).toggle(task),
                   onDelete: () => ref.read(extraTasksControllerProvider.notifier).remove(task.id),
                 );
@@ -67,6 +71,7 @@ class ExtraTasksScreen extends ConsumerWidget {
     final titleController = TextEditingController();
     final descController = TextEditingController();
     DateTime? pickedDeadline;
+    int priority = 1;
 
     showModalBottomSheet(
       context: context,
@@ -125,6 +130,28 @@ class ExtraTasksScreen extends ConsumerWidget {
                     });
                   },
                 ),
+                const SizedBox(height: 16),
+                Text('Важность', style: Theme.of(sheetContext).textTheme.labelLarge),
+                const SizedBox(height: 8),
+                Row(
+                  children: [1, 2, 3].map((level) {
+                    final selected = priority == level;
+                    final color = AppColors.priorityColor(level);
+                    return Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.only(right: level == 3 ? 0 : 8),
+                        child: ChoiceChip(
+                          label: Text(_priorityLabels[level]!),
+                          selected: selected,
+                          onSelected: (_) => setState(() => priority = level),
+                          avatar: CircleAvatar(backgroundColor: color, radius: 6),
+                          selectedColor: color.withValues(alpha: 0.18),
+                          side: BorderSide(color: selected ? color : Colors.transparent),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
@@ -134,6 +161,7 @@ class ExtraTasksScreen extends ConsumerWidget {
                           title: title,
                           description: descController.text.trim(),
                           deadline: pickedDeadline,
+                          priority: priority,
                         );
                     Navigator.of(sheetContext).pop();
                   },

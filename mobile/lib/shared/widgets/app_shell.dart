@@ -6,7 +6,7 @@ class AppShell extends StatelessWidget {
 
   final Widget child;
 
-  static const _tabs = ['/home', '/daily', '/extra'];
+  static const _tabs = ['/home', '/tasks', '/statistics', '/finance'];
 
   int _indexForLocation(String location) {
     final index = _tabs.indexWhere((tab) => location.startsWith(tab));
@@ -25,8 +25,9 @@ class AppShell extends StatelessWidget {
         onDestinationSelected: (index) => context.go(_tabs[index]),
         destinations: const [
           NavigationDestination(icon: Icon(Icons.home_rounded), label: 'Главная'),
-          NavigationDestination(icon: Icon(Icons.checklist_rounded), label: 'Ежедневные'),
-          NavigationDestination(icon: Icon(Icons.task_alt_rounded), label: 'Доп. задачи'),
+          NavigationDestination(icon: Icon(Icons.checklist_rounded), label: 'Задачи'),
+          NavigationDestination(icon: Icon(Icons.bar_chart_rounded), label: 'Статистика'),
+          NavigationDestination(icon: Icon(Icons.savings_rounded), label: 'Финансы'),
         ],
       ),
     );

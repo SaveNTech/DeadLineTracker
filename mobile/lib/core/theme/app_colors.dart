@@ -19,4 +19,23 @@ class AppColors {
 
   static const cardLight = Color(0xFFFFFFFF);
   static const cardDark = Color(0xFF1F1F29);
+
+  // Priority markers (extra tasks only) — a small dot/stripe, distinct from
+  // the full-row red treatment reserved for "overdue".
+  static const priorityLow = Color(0xFF22C55E); // green
+  static const priorityMedium = Color(0xFF1E3A8A); // dark blue
+  static const priorityHigh = Color(0xFFEF4444); // red
+
+  static Color priorityColor(int priority) {
+    switch (priority) {
+      case 3:
+        return priorityHigh;
+      case 2:
+        return priorityMedium;
+      default:
+        return priorityLow;
+    }
+  }
+
+  static const goalRing = Color(0xFF14B8A6);
 }

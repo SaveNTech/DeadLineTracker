@@ -1,8 +1,16 @@
 # DeadlineTracker
 
-A daily task tracker: recurring habits, one-off tasks with deadlines, and
-stats on how consistently you actually do them. Overdue tasks turn red and
-sink to the bottom of the list — but stay completable.
+A daily task tracker: recurring habits, one-off tasks with deadlines and
+priority, stats on how consistently you actually do them, and a lightweight
+income/savings-goal tracker. Overdue tasks turn red and sink to the bottom of
+the list — but stay completable.
+
+Four tabs: **Home** (today's progress, the most urgent task with a live
+countdown, high-priority items due this week), **Tasks** (daily habits +
+one-off tasks), **Statistics** (period stats, activity chart, per-habit
+history, CSV export), **Finance** (mark any daily habit as "financial" to log
+income when you complete it, then track it toward savings goals with a
+progress ring).
 
 Open source, built primarily for personal use, with an architecture meant to
 scale to a real multi-user mobile release later (FastAPI + PostgreSQL

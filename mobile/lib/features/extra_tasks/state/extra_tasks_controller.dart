@@ -9,7 +9,7 @@ final extraTasksRepositoryProvider = Provider<ExtraTasksRepository>((ref) {
 });
 
 final extraTasksControllerProvider =
-    StateNotifierProvider<ExtraTasksController, AsyncValue<List<ExtraTask>>>((ref) {
+    StateNotifierProvider.autoDispose<ExtraTasksController, AsyncValue<List<ExtraTask>>>((ref) {
   return ExtraTasksController(ref.watch(extraTasksRepositoryProvider));
 });
 
@@ -25,8 +25,18 @@ class ExtraTasksController extends StateNotifier<AsyncValue<List<ExtraTask>>> {
     state = await AsyncValue.guard(() => _repository.fetchAll());
   }
 
-  Future<void> add({required String title, String? description, DateTime? deadline}) async {
-    await _repository.create(title: title, description: description, deadline: deadline);
+  Future<void> add({
+    required String title,
+    String? description,
+    DateTime? deadline,
+    int priority = 1,
+  }) async {
+    await _repository.create(
+      title: title,
+      description: description,
+      deadline: deadline,
+      priority: priority,
+    );
     await refresh();
   }
 

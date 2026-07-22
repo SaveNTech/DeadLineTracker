@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../models/daily_task.dart';
+import '../../../shared/widgets/amount_entry_dialog.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/task_card.dart';
 import '../state/daily_tasks_controller.dart';
@@ -13,8 +15,8 @@ class DailyTasksScreen extends ConsumerWidget {
     final tasksAsync = ref.watch(dailyTasksControllerProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Ежедневные')),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'daily_tasks_fab',
         onPressed: () => _showAddSheet(context, ref),
         child: const Icon(Icons.add),
       ),
@@ -39,14 +41,18 @@ class DailyTasksScreen extends ConsumerWidget {
               separatorBuilder: (_, __) => const SizedBox(height: 10),
               itemBuilder: (context, index) {
                 final task = tasks[index];
+                final subtitleParts = [
+                  if (task.dueTime != null) 'До ${task.dueTime!.substring(0, 5)}',
+                  if (task.isFinancial) '💰 финансовая',
+                ];
                 return TaskCard(
                   key: ValueKey(task.id),
                   index: index,
                   title: task.title,
-                  subtitle: task.dueTime != null ? 'До ${task.dueTime!.substring(0, 5)}' : null,
+                  subtitle: subtitleParts.isEmpty ? null : subtitleParts.join(' · '),
                   isCompleted: task.isCompleted,
                   isOverdue: task.isOverdue,
-                  onToggle: () => ref.read(dailyTasksControllerProvider.notifier).toggle(task),
+                  onToggle: () => _handleToggle(context, ref, task),
                   onDelete: () =>
                       ref.read(dailyTasksControllerProvider.notifier).removeTemplate(task.templateId),
                 );
@@ -58,10 +64,29 @@ class DailyTasksScreen extends ConsumerWidget {
     );
   }
 
+  Future<void> _handleToggle(BuildContext context, WidgetRef ref, DailyTaskInstance task) async {
+    final controller = ref.read(dailyTasksControllerProvider.notifier);
+
+    if (task.isCompleted) {
+      await controller.uncomplete(task);
+      return;
+    }
+
+    if (task.isFinancial) {
+      final result = await showAmountEntryDialog(context, title: 'Сколько заработано?');
+      if (result == null) return;
+      await controller.complete(task, amount: result.amount, goalId: result.goalId);
+      return;
+    }
+
+    await controller.complete(task);
+  }
+
   void _showAddSheet(BuildContext context, WidgetRef ref) {
     final titleController = TextEditingController();
     final descController = TextEditingController();
     TimeOfDay? pickedTime;
+    bool isFinancial = false;
 
     showModalBottomSheet(
       context: context,
@@ -106,7 +131,14 @@ class DailyTasksScreen extends ConsumerWidget {
                     if (time != null) setState(() => pickedTime = time);
                   },
                 ),
-                const SizedBox(height: 20),
+                SwitchListTile.adaptive(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('Финансовая задача'),
+                  subtitle: const Text('При выполнении нужно будет указать заработанную сумму'),
+                  value: isFinancial,
+                  onChanged: (value) => setState(() => isFinancial = value),
+                ),
+                const SizedBox(height: 8),
                 ElevatedButton(
                   onPressed: () {
                     final title = titleController.text.trim();
@@ -119,6 +151,7 @@ class DailyTasksScreen extends ConsumerWidget {
                           title: title,
                           description: descController.text.trim(),
                           dueTime: dueTime,
+                          isFinancial: isFinancial,
                         );
                     Navigator.of(sheetContext).pop();
                   },

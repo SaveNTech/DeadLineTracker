@@ -1,6 +1,7 @@
 import uuid
 from datetime import UTC, datetime, time
 from datetime import date as date_type
+from decimal import Decimal
 
 from fastapi import HTTPException, status
 from sqlalchemy import select
@@ -8,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.daily_task import DailyTaskInstance, DailyTaskTemplate
 from app.models.extra_task import ExtraTask
+from app.models.finance import SOURCE_DAILY_TASK
 from app.models.user import User
 from app.schemas.daily_task import (
     DailyTaskInstanceRead,
@@ -15,6 +17,7 @@ from app.schemas.daily_task import (
     DailyTaskTemplateUpdate,
 )
 from app.schemas.extra_task import ExtraTaskCreate, ExtraTaskUpdate
+from app.services import finance_service
 
 
 def _is_overdue(deadline: datetime | None, is_completed: bool) -> bool:
@@ -135,6 +138,7 @@ async def get_daily_instances_for_date(
                 description=template.description,
                 date=instance.date,
                 due_time=template.due_time,
+                is_financial=template.is_financial,
                 is_completed=instance.is_completed,
                 completed_at=instance.completed_at,
                 is_overdue=_is_overdue(deadline, instance.is_completed),
@@ -151,16 +155,60 @@ async def get_daily_instances_for_date(
     return items
 
 
-async def set_daily_instance_completed(
-    db: AsyncSession, user: User, instance_id: uuid.UUID, completed: bool
+async def _get_owned_instance(
+    db: AsyncSession, user: User, instance_id: uuid.UUID
 ) -> DailyTaskInstance:
     instance = await db.get(DailyTaskInstance, instance_id)
     if instance is None or instance.user_id != user.id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Daily task not found")
-    instance.is_completed = completed
-    instance.completed_at = datetime.now(UTC) if completed else None
+    return instance
+
+
+async def complete_daily_instance(
+    db: AsyncSession,
+    user: User,
+    instance_id: uuid.UUID,
+    amount: Decimal | None,
+    goal_id: uuid.UUID | None,
+) -> DailyTaskInstance:
+    instance = await _get_owned_instance(db, user, instance_id)
+    template = await db.get(DailyTaskTemplate, instance.template_id)
+
+    if template is not None and template.is_financial and amount is None:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="This is a financial task — amount is required to complete it",
+        )
+
+    instance.is_completed = True
+    instance.completed_at = datetime.now(UTC)
     await db.commit()
     await db.refresh(instance)
+
+    if template is not None and template.is_financial and amount is not None:
+        await finance_service.create_income_entry(
+            db,
+            user,
+            amount=amount,
+            entry_date=instance.date,
+            goal_id=goal_id,
+            source=SOURCE_DAILY_TASK,
+            daily_task_instance_id=instance.id,
+            note=template.title,
+        )
+
+    return instance
+
+
+async def uncomplete_daily_instance(
+    db: AsyncSession, user: User, instance_id: uuid.UUID
+) -> DailyTaskInstance:
+    instance = await _get_owned_instance(db, user, instance_id)
+    instance.is_completed = False
+    instance.completed_at = None
+    await db.commit()
+    await db.refresh(instance)
+    await finance_service.delete_income_entry_for_instance(db, user, instance_id)
     return instance
 
 

@@ -4,6 +4,7 @@ class DailyTaskTemplate {
   final String? description;
   final String? dueTime; // "HH:mm:ss"
   final bool isActive;
+  final bool isFinancial;
   final int position;
 
   const DailyTaskTemplate({
@@ -12,6 +13,7 @@ class DailyTaskTemplate {
     required this.description,
     required this.dueTime,
     required this.isActive,
+    required this.isFinancial,
     required this.position,
   });
 
@@ -21,6 +23,7 @@ class DailyTaskTemplate {
         description: json['description'] as String?,
         dueTime: json['due_time'] as String?,
         isActive: json['is_active'] as bool,
+        isFinancial: json['is_financial'] as bool,
         position: json['position'] as int,
       );
 }
@@ -32,6 +35,7 @@ class DailyTaskInstance {
   final String? description;
   final String date; // "YYYY-MM-DD"
   final String? dueTime;
+  final bool isFinancial;
   final bool isCompleted;
   final DateTime? completedAt;
   final bool isOverdue;
@@ -43,6 +47,7 @@ class DailyTaskInstance {
     required this.description,
     required this.date,
     required this.dueTime,
+    required this.isFinancial,
     required this.isCompleted,
     required this.completedAt,
     required this.isOverdue,
@@ -55,6 +60,7 @@ class DailyTaskInstance {
         description: json['description'] as String?,
         date: json['date'] as String,
         dueTime: json['due_time'] as String?,
+        isFinancial: json['is_financial'] as bool,
         isCompleted: json['is_completed'] as bool,
         completedAt:
             json['completed_at'] == null ? null : DateTime.parse(json['completed_at'] as String),

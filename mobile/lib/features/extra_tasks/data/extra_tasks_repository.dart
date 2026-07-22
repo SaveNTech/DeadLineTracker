@@ -13,13 +13,19 @@ class ExtraTasksRepository {
         .toList();
   }
 
-  Future<void> create({required String title, String? description, DateTime? deadline}) {
+  Future<void> create({
+    required String title,
+    String? description,
+    DateTime? deadline,
+    int priority = 1,
+  }) {
     return _apiClient.dio.post(
       '/extra-tasks',
       data: {
         'title': title,
         if (description != null && description.isNotEmpty) 'description': description,
         if (deadline != null) 'deadline': deadline.toUtc().toIso8601String(),
+        'priority': priority,
       },
     );
   }
