@@ -1,5 +1,7 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/app_config.dart';
 import '../../../core/providers.dart';
 import '../../../models/user.dart';
 import '../data/auth_repository.dart';
@@ -100,5 +102,19 @@ class AuthController extends StateNotifier<AuthState> {
     );
   }
 
-  String _friendlyError(Object e) => 'Не удалось выполнить вход. Проверьте данные и подключение.';
+  String _friendlyError(Object e) {
+    if (!AppConfig.debugMode) {
+      return 'Не удалось выполнить вход. Проверьте данные и подключение.';
+    }
+    if (e is DioException) {
+      // e.message is often a generic "cannot be solved by the library"
+      // wrapper — the real cause (platform SocketException, cleartext
+      // policy rejection, etc.) is usually in e.error instead.
+      final detail = e.response != null
+          ? 'HTTP ${e.response?.statusCode}: ${e.response?.data}'
+          : '${e.type.name}: ${e.message} (${e.error})';
+      return 'Ошибка входа: $detail';
+    }
+    return 'Не удалось выполнить вход: $e';
+  }
 }
