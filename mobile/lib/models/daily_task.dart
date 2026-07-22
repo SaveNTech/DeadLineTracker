@@ -66,4 +66,27 @@ class DailyTaskInstance {
             json['completed_at'] == null ? null : DateTime.parse(json['completed_at'] as String),
         isOverdue: json['is_overdue'] as bool,
       );
+
+  /// Today's due time as a concrete local [DateTime], for scheduling
+  /// reminders — null if this task has no time-of-day deadline.
+  DateTime? get dueDateTime {
+    final time = dueTime;
+    if (time == null) return null;
+    final parts = time.split(':');
+    final day = DateTime.parse(date);
+    return DateTime(day.year, day.month, day.day, int.parse(parts[0]), int.parse(parts[1]));
+  }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'template_id': templateId,
+        'title': title,
+        'description': description,
+        'date': date,
+        'due_time': dueTime,
+        'is_financial': isFinancial,
+        'is_completed': isCompleted,
+        'completed_at': completedAt?.toIso8601String(),
+        'is_overdue': isOverdue,
+      };
 }

@@ -26,6 +26,16 @@ class HomeTaskRef {
         isOverdue: json['is_overdue'] as bool,
         minutesRemaining: json['minutes_remaining'] as int?,
       );
+
+  Map<String, dynamic> toJson() => {
+        'kind': kind,
+        'id': id,
+        'title': title,
+        'deadline': deadline?.toIso8601String(),
+        'priority': priority,
+        'is_overdue': isOverdue,
+        'minutes_remaining': minutesRemaining,
+      };
 }
 
 class HomeSummary {
@@ -57,4 +67,12 @@ class HomeSummary {
             .toList(),
         fetchedAt: DateTime.now(),
       );
+
+  Map<String, dynamic> toJson() => {
+        'today_total': todayTotal,
+        'today_completed': todayCompleted,
+        'urgent': urgent?.toJson(),
+        'next': next?.toJson(),
+        'week_highlights': weekHighlights.map((e) => e.toJson()).toList(),
+      };
 }

@@ -33,4 +33,16 @@ class ExtraTask {
         position: json['position'] as int,
         isOverdue: json['is_overdue'] as bool,
       );
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'title': title,
+        'description': description,
+        'deadline': deadline?.toIso8601String(),
+        'priority': priority,
+        'is_completed': isCompleted,
+        'completed_at': completedAt?.toIso8601String(),
+        'position': position,
+        'is_overdue': isOverdue,
+      };
 }

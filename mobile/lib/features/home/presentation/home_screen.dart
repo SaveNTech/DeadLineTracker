@@ -56,7 +56,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
       body: RefreshIndicator(
         onRefresh: () async {
-          ref.invalidate(homeSummaryProvider);
+          await ref.read(homeSummaryProvider.notifier).refresh();
           ref.invalidate(statsSummaryProvider);
           await ref.read(dailyTasksControllerProvider.notifier).refresh();
           await ref.read(extraTasksControllerProvider.notifier).refresh();
@@ -65,7 +65,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (_, __) => Center(
             child: FilledButton(
-              onPressed: () => ref.invalidate(homeSummaryProvider),
+              onPressed: () => ref.read(homeSummaryProvider.notifier).refresh(),
               child: const Text('Повторить'),
             ),
           ),
