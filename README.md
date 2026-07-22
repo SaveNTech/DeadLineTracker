@@ -68,8 +68,7 @@ maps to the host machine) and `localhost:8000` elsewhere — see
 docker compose up --build
 ```
 
-Starts Postgres, the FastAPI backend (with hot reload), and Adminer (DB UI)
-at http://localhost:8080.
+Starts Postgres and the FastAPI backend (with hot reload).
 
 ## API
 
