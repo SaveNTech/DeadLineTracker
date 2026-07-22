@@ -15,7 +15,9 @@
              different network). Only needed until this points at a real
              HTTPS server. -->
         <domain includeSubdomains="false">192.168.1.2</domain>
-        <!-- Deployed backend server. Remove once it's behind HTTPS. -->
-        <domain includeSubdomains="false">193.233.82.176</domain>
+        <!-- The deployed backend's public IP is intentionally NOT listed here
+             (don't want it in a public repo's history). It's added locally,
+             uncommitted, via `git update-index --assume-unchanged` on this
+             file — see CLAUDE.md. Re-add it after a fresh clone if needed. -->
     </domain-config>
 </network-security-config>
