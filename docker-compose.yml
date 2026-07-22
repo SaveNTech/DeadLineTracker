@@ -7,8 +7,10 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
       POSTGRES_DB: ${POSTGRES_DB:-deadline_tracker}
     ports:
-      # Host port 5433 avoids clashing with a locally installed Postgres on 5432.
-      - "5433:5432"
+      # Host port defaults to 5433 to avoid clashing with a locally installed
+      # Postgres on 5432. Override DB_HOST_PORT in .env if that's also taken
+      # (e.g. on a shared host running other projects).
+      - "${DB_HOST_PORT:-5433}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -29,7 +31,9 @@ services:
     environment:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-deadline_tracker}:${POSTGRES_PASSWORD:-change-me}@db:5432/${POSTGRES_DB:-deadline_tracker}
     ports:
-      - "8000:8000"
+      # Override BACKEND_HOST_PORT in .env if 8000 is already taken on the
+      # host (e.g. on a shared server running other projects).
+      - "${BACKEND_HOST_PORT:-8000}:8000"
     volumes:
       - ./backend:/app
     # Some sandboxed/nested-Docker hosts break the embedded DNS resolver
