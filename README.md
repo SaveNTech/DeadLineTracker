@@ -73,4 +73,4 @@ All endpoints are versioned under `/api/v1`. Authentication accepts either:
 
 ## License
 
-Not yet decided.
+MIT — see [LICENSE](LICENSE).
