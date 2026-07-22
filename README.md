@@ -58,9 +58,14 @@ flutter pub get
 flutter run
 ```
 
-The API base URL defaults to `10.0.2.2:8000` on the Android emulator (which
-maps to the host machine) and `localhost:8000` elsewhere — see
-`mobile/lib/core/api/api_client.dart`.
+The API base URL defaults to `localhost:8000` (works for the emulator with
+`adb reverse tcp:8000 tcp:8000`, or a physical device the same way over USB).
+Override it at build time to point at a deployed server instead — see
+`mobile/lib/core/api/api_client.dart`:
+
+```bash
+flutter build apk --release --dart-define=API_BASE_URL=https://your-server/api/v1
+```
 
 ### Everything via Docker
 
@@ -72,11 +77,61 @@ Starts Postgres and the FastAPI backend (with hot reload).
 
 ## API
 
-All endpoints are versioned under `/api/v1`. Authentication accepts either:
+All endpoints are versioned under `/api/v1`. Interactive docs (Swagger UI)
+are always available at `<base-url>/docs`.
 
-- a short-lived JWT from `/api/v1/auth/login` (mobile app session), or
-- a personal API token issued via `/api/v1/api-tokens` (for scripts/third-party
-  integrations) — pass it the same way: `Authorization: Bearer <token>`.
+Two ways to authenticate, both via the same `Authorization: Bearer <token>`
+header on every request:
+
+- a short-lived **JWT access token** from `/api/v1/auth/login` (what the
+  mobile app uses — expires in `ACCESS_TOKEN_EXPIRE_MINUTES`, refresh with
+  `/api/v1/auth/refresh`), or
+- a long-lived **personal API token** (`dt_live_...`) from
+  `/api/v1/api-tokens` — for scripts and third-party integrations that
+  shouldn't need to know a user's password or handle token refresh.
+
+There's no web UI for managing personal API tokens yet (planned separately).
+For now, issue one directly against the API:
+
+**1. Log in to get a JWT** (the login endpoint is a standard OAuth2 password
+form, not JSON — `username` here means your email):
+
+```bash
+curl -X POST https://your-server/api/v1/auth/login \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "username=you@example.com&password=yourpassword"
+# => {"access_token": "...", "refresh_token": "...", "token_type": "bearer"}
+```
+
+**2. Create a personal API token**, authenticating with that JWT. The raw
+token is only ever returned in this one response — store it now, the server
+only keeps a hash of it:
+
+```bash
+curl -X POST https://your-server/api/v1/api-tokens \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "my script"}'
+# => {"id": "...", "name": "my script", "prefix": "dt_live_", "token": "dt_live_XXXXXXXX", ...}
+```
+
+**3. Use the token** for any endpoint, same as a JWT — full access to your
+tasks, stats, and finance data:
+
+```bash
+curl https://your-server/api/v1/extra-tasks \
+  -H "Authorization: Bearer dt_live_XXXXXXXX"
+```
+
+**List / revoke tokens:**
+
+```bash
+curl https://your-server/api/v1/api-tokens -H "Authorization: Bearer <access_token>"
+curl -X DELETE https://your-server/api/v1/api-tokens/<token_id> -H "Authorization: Bearer <access_token>"
+```
+
+Revoking sets `revoked_at` — the token stops working immediately but the
+record (and its usage history) isn't deleted.
 
 ## License
 
