@@ -1,0 +1,56 @@
+# --- Claude / local tooling (not part of the public open-source repo) ---
+CLAUDE.md
+.claude/
+
+# --- Secrets / environment ---
+.env
+.env.*
+!.env.example
+
+# --- Python (backend) ---
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+dist/
+
+# --- Flutter / Dart (mobile) ---
+mobile/build/
+mobile/.dart_tool/
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+mobile/.flutter-versions
+mobile/.packages
+mobile/.pub-cache/
+mobile/.pub/
+mobile/android/.gradle/
+mobile/android/local.properties
+mobile/android/**/gradle-wrapper.jar
+mobile/android/key.properties
+mobile/ios/Pods/
+mobile/ios/Flutter/Flutter.framework
+mobile/ios/Flutter/Flutter.podspec
+mobile/ios/Flutter/ephemeral/
+mobile/ios/.symlinks/
+mobile/**/generated_plugin_registrant.*
+*.g.dart
+*.freezed.dart
+
+# --- Docker local volumes ---
+postgres_data/
+
+# --- IDE / OS ---
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
