@@ -1,21 +1,22 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 
 import '../../models/auth_tokens.dart';
 import '../storage/token_storage.dart';
 
 /// Base URL for the FastAPI backend.
 ///
-/// `10.0.2.2` is how the Android emulator reaches the host machine's
-/// `localhost`. Point this at a real host (and use https) for a physical
-/// device, web, or production build. Uses `defaultTargetPlatform` (not
-/// `dart:io`'s `Platform`) so this also compiles for web.
-String get _defaultBaseUrl {
-  if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-    return 'http://10.0.2.2:8000/api/v1';
-  }
-  return 'http://localhost:8000/api/v1';
-}
+/// Overridable at build time so switching between local dev and a deployed
+/// server never needs a code change:
+///
+///   flutter build apk --release --dart-define=API_BASE_URL=http://192.168.1.2:8000/api/v1
+///   flutter build apk --release --dart-define=API_BASE_URL=https://api.example.com/api/v1
+///
+/// Defaults to `localhost`, which only works for the Android emulator (or a
+/// real device with `adb reverse tcp:8000 tcp:8000` set up over USB).
+const String _defaultBaseUrl = String.fromEnvironment(
+  'API_BASE_URL',
+  defaultValue: 'http://localhost:8000/api/v1',
+);
 
 class ApiClient {
   ApiClient(this._tokenStorage, {String? baseUrl, this.onUnauthenticated})

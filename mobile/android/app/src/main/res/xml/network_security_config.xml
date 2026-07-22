@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Allows plain HTTP (cleartext) only to the local dev backend. Android blocks
+  cleartext traffic by default in release builds (debug builds get a
+  permissive config injected automatically by Flutter, which is why this only
+  showed up when building for release, not when running via the Flutter tool
+  in debug mode). Remove this once the app talks to a real HTTPS backend.
+-->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">localhost</domain>
+        <domain includeSubdomains="false">127.0.0.1</domain>
+        <domain includeSubdomains="false">10.0.2.2</domain>
+        <!-- Dev machine's LAN IP — update if it changes (DHCP reassignment,
+             different network). Only needed until this points at a real
+             HTTPS server. -->
+        <domain includeSubdomains="false">192.168.1.2</domain>
+    </domain-config>
+</network-security-config>

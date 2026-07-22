@@ -8,7 +8,9 @@ plugins {
 android {
     namespace = "com.deadlinetracker.deadline_tracker"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    // flutter_secure_storage / path_provider_android / share_plus need this
+    // specific NDK; flutter.ndkVersion defaults to an older one.
+    ndkVersion = "27.0.12077973"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
